@@ -1,0 +1,93 @@
+import json, os, math
+from dataclasses import dataclass, asdict
+from datetime import datetime
+from collections import defaultdict
+
+@dataclass
+class Transaction:
+    date: str
+    desc: str
+    category: str
+    kind: str
+    amount: float
+
+class FinanceTracker:
+    def __init__(self):
+        self.tx=[]
+    def add(self,date,desc,category,kind,amount):
+        self.tx.append(Transaction(date,desc,category,kind,float(amount)))
+    def list_all(self):
+        for i,t in enumerate(self.tx,1):
+            print(f"{i}. {t.date} | {t.kind:<8} | {t.category:<12} | {t.amount:>10.2f} | {t.desc}")
+    def filter_expenses_over(self,threshold):
+        r=[t for t in self.tx if t.kind.lower()=="expense" and t.amount>threshold]
+        for i,t in enumerate(r,1):
+            print(f"{i}. {t.date} | {t.category:<12} | {t.amount:>10.2f} | {t.desc}")
+    def search(self,q):
+        q=q.lower()
+        r=[t for t in self.tx if q in t.desc.lower() or q in t.category.lower()]
+        for i,t in enumerate(r,1):
+            print(f"{i}. {t.date} | {t.kind:<8} | {t.category:<12} | {t.amount:>10.2f} | {t.desc}")
+    def sort_by(self,key):
+        if key=="amount": self.tx.sort(key=lambda t:t.amount)
+        elif key=="date": self.tx.sort(key=lambda t:datetime.strptime(t.date,"%Y-%m-%d"))
+        elif key=="category": self.tx.sort(key=lambda t:t.category.lower())
+    def save(self,fp):
+        with open(fp,"w",encoding="utf-8") as f:
+            json.dump([asdict(t) for t in self.tx],f,indent=2)
+    def load(self,fp):
+        if not os.path.exists(fp): return
+        with open(fp,"r",encoding="utf-8") as f:
+            data=json.load(f)
+        self.tx=[Transaction(**d) for d in data]
+    def ascii_monthly_spend(self):
+        m=defaultdict(float)
+        for t in self.tx:
+            if t.kind.lower()=="expense":
+                ym=t.date[:7]
+                m[ym]+=t.amount
+        if not m:
+            print("No expenses.")
+            return
+        mx=max(m.values())
+        for k in sorted(m.keys()):
+            v=m[k]
+            n=0 if mx==0 else max(1,int((v/mx)*50))
+            print(f"{k} | {'█'*n} {v:.2f}")
+
+def main():
+    f=FinanceTracker()
+    fp="finance_data.json"
+    f.load(fp)
+    while True:
+        print("\n1 Add  2 List  3 Filter>100  4 Search  5 Sort  6 Save  7 Chart  8 Quit")
+        ch=input("> ").strip()
+        if ch=="1":
+            d=input("YYYY-MM-DD: ").strip()
+            desc=input("Desc: ").strip()
+            cat=input("Category: ").strip()
+            kind=input("Type (Income/Expense): ").strip()
+            amt=float(input("Amount: ").strip())
+            f.add(d,desc,cat,kind,amt)
+        elif ch=="2":
+            f.list_all()
+        elif ch=="3":
+            thr=input("Threshold (default 100): ").strip()
+            thr=float(thr) if thr else 100.0
+            f.filter_expenses_over(thr)
+        elif ch=="4":
+            f.search(input("Query: ").strip())
+        elif ch=="5":
+            k=input("Key (date/amount/category): ").strip()
+            f.sort_by(k)
+        elif ch=="6":
+            f.save(fp); print("Saved.")
+        elif ch=="7":
+            f.ascii_monthly_spend()
+        elif ch=="8":
+            f.save(fp); break
+        else:
+            print("Invalid.")
+
+if __name__=="__main__":
+    main()

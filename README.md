@@ -1,31 +1,18 @@
-# 💰 Personal Finance Tracker
+# 💸 Personal Finance Tracker
 
-## 📌 Project Description
-The **Personal Finance Tracker** is a simple Python application that helps users manage their income, expenses, and savings goals.  
-It allows adding transactions, searching, sorting, filtering, and generating an ASCII bar chart for monthly spending.
-
----
-
-## 🚀 Features
-- Add income and expense transactions  
-- List all transactions in a neat format  
-- Search transactions by description or category  
-- Filter expenses over a given threshold (e.g., > $100)  
-- Sort transactions by **date**, **amount**, or **category**  
-- Save & load transaction data from a JSON file  
-- Generate ASCII monthly spending bar chart  
+> A lightweight Python app to **take control of your money** — track income, monitor expenses, and see where your cash goes.  
+> No Excel sheets. No boring notebooks. Just run it and start logging. 🚀  
 
 ---
 
-## 🛠️ Tech Stack
-- **Language**: Python  
-- **Data Structures**: Arrays of structures (implemented using `dataclass` list)  
-- **File Handling**: JSON persistence for saving & loading  
+## ✨ What It Does
+- 📝 Add transactions (Income / Expense)  
+- 🔍 Search & filter transactions (e.g., expenses above ₹1000 / $100)  
+- 📅 Sort by **date, category, or amount**  
+- 💾 Auto-save & load data from file (no data loss)  
+- 📊 Visualize spending with an **ASCII bar chart** (console-based)  
 
 ---
 
-## ▶️ How to Run
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/personal-finance-tracker.git
-   cd personal-finance-tracker/src
+## ⚙️ How It Works
+Transactions are stored as **structured records** (using Python `dataclass

@@ -30,12 +30,3 @@ python main.py
 
 ---
 
-### Why this stands out:
-- Uses **one-liners** → no bulky paragraphs.  
-- Balanced whitespace & simple typography (Markdown chic ✨).  
-- Minimal icons → adds personality but still professional.  
-- Reads like a **portfolio project**, not a class homework.  
-
----
-
-👉 Do you want me to design the **same minimalist chic style README** for your **Ride-Sharing Simulator** and **Smart Parking Lot** so that all 3 repos look like a curated project set?

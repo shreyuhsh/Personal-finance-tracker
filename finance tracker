@@ -1,93 +1,80 @@
-import json, os, math
-from dataclasses import dataclass, asdict
+import json
+import os
 from datetime import datetime
-from collections import defaultdict
-
-@dataclass
-class Transaction:
-    date: str
-    desc: str
-    category: str
-    kind: str
-    amount: float
 
 class FinanceTracker:
-    def __init__(self):
-        self.tx=[]
-    def add(self,date,desc,category,kind,amount):
-        self.tx.append(Transaction(date,desc,category,kind,float(amount)))
-    def list_all(self):
-        for i,t in enumerate(self.tx,1):
-            print(f"{i}. {t.date} | {t.kind:<8} | {t.category:<12} | {t.amount:>10.2f} | {t.desc}")
-    def filter_expenses_over(self,threshold):
-        r=[t for t in self.tx if t.kind.lower()=="expense" and t.amount>threshold]
-        for i,t in enumerate(r,1):
-            print(f"{i}. {t.date} | {t.category:<12} | {t.amount:>10.2f} | {t.desc}")
-    def search(self,q):
-        q=q.lower()
-        r=[t for t in self.tx if q in t.desc.lower() or q in t.category.lower()]
-        for i,t in enumerate(r,1):
-            print(f"{i}. {t.date} | {t.kind:<8} | {t.category:<12} | {t.amount:>10.2f} | {t.desc}")
-    def sort_by(self,key):
-        if key=="amount": self.tx.sort(key=lambda t:t.amount)
-        elif key=="date": self.tx.sort(key=lambda t:datetime.strptime(t.date,"%Y-%m-%d"))
-        elif key=="category": self.tx.sort(key=lambda t:t.category.lower())
-    def save(self,fp):
-        with open(fp,"w",encoding="utf-8") as f:
-            json.dump([asdict(t) for t in self.tx],f,indent=2)
-    def load(self,fp):
-        if not os.path.exists(fp): return
-        with open(fp,"r",encoding="utf-8") as f:
-            data=json.load(f)
-        self.tx=[Transaction(**d) for d in data]
-    def ascii_monthly_spend(self):
-        m=defaultdict(float)
-        for t in self.tx:
-            if t.kind.lower()=="expense":
-                ym=t.date[:7]
-                m[ym]+=t.amount
-        if not m:
-            print("No expenses.")
+    def __init__(self, file_name="finance_data.json"):
+        self.transactions = []
+        self.file_name = file_name
+        self.load_data()
+
+    def add_transaction(self, amount, category, type_):
+        transaction = {
+            "amount": amount,
+            "category": category,
+            "type": type_,  # "income" or "expense"
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        self.transactions.append(transaction)
+        self.save_data()
+
+    def show_transactions(self):
+        if not self.transactions:
+            print("📂 No transactions yet.")
             return
-        mx=max(m.values())
-        for k in sorted(m.keys()):
-            v=m[k]
-            n=0 if mx==0 else max(1,int((v/mx)*50))
-            print(f"{k} | {'█'*n} {v:.2f}")
+        print("\n📜 Transactions:")
+        for t in self.transactions:
+            print(f"[{t['date']}] {t['type'].upper()} - {t['category']} : ${t['amount']}")
 
-def main():
-    f=FinanceTracker()
-    fp="finance_data.json"
-    f.load(fp)
-    while True:
-        print("\n1 Add  2 List  3 Filter>100  4 Search  5 Sort  6 Save  7 Chart  8 Quit")
-        ch=input("> ").strip()
-        if ch=="1":
-            d=input("YYYY-MM-DD: ").strip()
-            desc=input("Desc: ").strip()
-            cat=input("Category: ").strip()
-            kind=input("Type (Income/Expense): ").strip()
-            amt=float(input("Amount: ").strip())
-            f.add(d,desc,cat,kind,amt)
-        elif ch=="2":
-            f.list_all()
-        elif ch=="3":
-            thr=input("Threshold (default 100): ").strip()
-            thr=float(thr) if thr else 100.0
-            f.filter_expenses_over(thr)
-        elif ch=="4":
-            f.search(input("Query: ").strip())
-        elif ch=="5":
-            k=input("Key (date/amount/category): ").strip()
-            f.sort_by(k)
-        elif ch=="6":
-            f.save(fp); print("Saved.")
-        elif ch=="7":
-            f.ascii_monthly_spend()
-        elif ch=="8":
-            f.save(fp); break
-        else:
-            print("Invalid.")
+    def filter_expenses_over(self, limit):
+        print(f"\n🔎 Expenses over ${limit}:")
+        for t in self.transactions:
+            if t['type'] == "expense" and t['amount'] > limit:
+                print(f"[{t['date']}] {t['category']} : ${t['amount']}")
 
-if __name__=="__main__":
-    main()
+    def search_by_category(self, keyword):
+        print(f"\n🔎 Transactions in '{keyword}':")
+        for t in self.transactions:
+            if keyword.lower() in t['category'].lower():
+                print(f"[{t['date']}] {t['type'].upper()} - {t['category']} : ${t['amount']}")
+
+    def sort_by_amount(self):
+        self.transactions.sort(key=lambda x: x['amount'], reverse=True)
+        print("\n📊 Transactions sorted by amount (high → low):")
+        self.show_transactions()
+
+    def ascii_spending_chart(self):
+        monthly = {}
+        for t in self.transactions:
+            if t["type"] == "expense":
+                month = t["date"][:7]  # YYYY-MM
+                monthly[month] = monthly.get(month, 0) + t["amount"]
+
+        print("\n📈 Monthly Spending Chart:")
+        for month, total in monthly.items():
+            print(f"{month}: {'█' * (total // 10)} ${total}")
+
+    def save_data(self):
+        with open(self.file_name, "w") as f:
+            json.dump(self.transactions, f, indent=4)
+
+    def load_data(self):
+        if os.path.exists(self.file_name):
+            with open(self.file_name, "r") as f:
+                self.transactions = json.load(f)
+
+
+# ---------------- DEMO -----------------
+if __name__ == "__main__":
+    app = FinanceTracker()
+
+    app.add_transaction(500, "Salary", "income")
+    app.add_transaction(120, "Groceries", "expense")
+    app.add_transaction(200, "Shopping", "expense")
+    app.add_transaction(50, "Snacks", "expense")
+
+    app.show_transactions()
+    app.filter_expenses_over(100)
+    app.search_by_category("shop")
+    app.sort_by_amount()
+    app.ascii_spending_chart()

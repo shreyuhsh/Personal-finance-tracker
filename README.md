@@ -28,3 +28,38 @@ Track transactions, visualize spending, and stay financially aware — all from 
 
 ## 🚀 Run
 ```bash
+# Finance Tracker (CLI)
+
+## ✨ Features
+- Add income & expense records  
+- Search, filter, and sort transactions  
+- Save & load automatically (JSON persistence)  
+- ASCII bar chart for monthly spending  
+
+---
+
+## 🚀 Tech
+- **Language:** Python  
+- **Data Structures:** Dataclasses, Lists  
+- **Concepts:** Sorting, Searching, File Handling  
+
+---
+
+## ⚡ Quick Start
+
+```bash
+# Clone this repository
+git clone https://github.com/your-username/finance-trac-cli.git
+
+# Navigate to project folder
+cd finance-trac-cli
+
+# Run the program
+python finance_trac.py
+
+---
+ 
+- Display **`demo1.png`** as an image  
+- Show the **entire Python source code** directly in README  
+- Keep a **sample output section** for clarity  
+

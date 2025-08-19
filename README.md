@@ -61,5 +61,5 @@ python finance_trac.py
  
 - Display **`demo1.png`** as an image  
 - Show the **entire Python source code** directly in README  
-- Keep a **sample output section** for clarity  
+
 
